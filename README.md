@@ -1,2 +1,2 @@
 # Advertisement
-Advertisement project
+Advertiment is a repository for showing test project.
