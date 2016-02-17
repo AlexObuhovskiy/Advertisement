@@ -1,0 +1,143 @@
+﻿@model Advertisement.Models.Advertisement
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    ViewBag.Title = "Новая реклама";
+}
+<div>
+    <h4>Новая реклама</h4>
+</div>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <hr/>
+    @Html.ValidationSummary(true)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Description, htmlAttributes: new {@class = "control-label col-md-2"})
+            <div class="col-md-9">
+                @Html.EditorFor(model => model.Description, new {htmlAttributes = new {@class = "form-control"}})
+                @Html.ValidationMessageFor(model => model.Description)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.MaintenanceTime, htmlAttributes: new {@class = "control-label col-md-2"})
+            <div class="col-md-9">
+                <input type="date" name="MaintenanceTime" id="MaintenanceTime">
+                @Html.ValidationMessageFor(model => model.MaintenanceTime)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Location, htmlAttributes: new {@class = "control-label col-md-2"})
+            <div class="col-md-9">
+                <input type="text" name="lat" id="lat" readonly hidden>
+                <input type="text" name="lng" id="lng" readonly hidden>
+                
+                <div id="map_canvas_create" style="width:600px; height:400px;"></div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            @Html.LabelFor(model => model.Type, htmlAttributes: new {@class = "control-label col-md-2"})
+            <div class="col-md-9">
+                <select name="Type" id="Type">
+                    <option selected></option>
+                    <option value="Биллборд">Биллборд</option>
+                    <option value="Ситилайт">Ситилайт</option>
+                    <option value="Видеоэкран">Видеоэкран</option>
+                </select>
+                @Html.ValidationMessageFor(model => model.Type)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Height, htmlAttributes: new {@class = "control-label col-md-2"})
+            <div class="col-md-9">
+                <input type="text" name="Height" id="Height" onkeyup="digitsOnly(this)"/>
+                @Html.ValidationMessageFor(model => model.Height)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Width, htmlAttributes: new {@class = "control-label col-md-2"})
+            <div class="col-md-9">
+                <input type="text" name="Width" id="Width" onkeyup="digitsOnly(this)"/>
+                @Html.ValidationMessageFor(model => model.Width)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.MonthlyCost, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-9">
+                <input type="text" name="MonthlyCost" id="MonthlyCost" onkeyup="digitsOnly(this)"/>
+                @Html.ValidationMessageFor(model => model.MonthlyCost)
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Создать" class="btn btn-primary btn-large" />
+            </div>
+        </div>
+    </div>
+}
+
+@* Выражение для уделения всех ненужных символов, кроме запятой и цифр *@
+<script>
+    function digitsOnly(event) {
+        var value = event.value;
+        if (/^,|\d+,.*,|[^\d,{1}]/.test(value))
+            event.value = value.slice(0, -1);
+    }
+</script>
+
+@* Показать местоположение рекламы *@
+<script>
+    var map;
+    var latAdv;
+    var lngAdv;
+    var markers = [];
+    $(document).ready(function () {
+        
+        var haightAshbury = { lat: 50.4492248, lng: 30.546573 };
+
+            map = new google.maps.Map(document.getElementById('map_canvas_create'), {
+                zoom: 12,
+                center: haightAshbury,
+                mapTypeId: google.maps.MapTypeId.TERRAIN
+            });
+
+            // This event listener will call addMarker() when the map is clicked.
+            map.addListener('click', function (event) {
+                addMarker(event.latLng);
+                latAdv = event.latLng.lat();
+                lngAdv = event.latLng.lng();
+                $('#lat').val(latAdv);
+                $('#lng').val(lngAdv);
+            });
+    });
+
+    function addMarker(location) {
+        var marker = new google.maps.Marker({
+            position: location,
+            map: map
+        });
+
+        function setMapOnAll(map) {
+            for (var i = 0; i < markers.length; i++) {
+                markers[i].setMap(map);
+            }
+        }
+        setMapOnAll(null);
+        markers = [];
+        markers.push(marker);
+    }
+</script>
